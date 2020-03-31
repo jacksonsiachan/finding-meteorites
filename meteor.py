@@ -1,9 +1,7 @@
+#! /usr/bin/env python3
+
 import math
 import requests
-
-meteor_resp = requests.get('https://data.nasa.gov/resource/gh4g-9sfh.json')
-meteor_data = meteor_resp.json()
-my_location = (1.289437,103.84998) # SG Lat and Long
 
 def calc_dist(lat1, lon1, lat2, lon2):
     lat1 = math.radians(lat1)
@@ -21,14 +19,19 @@ def calc_dist(lat1, lon1, lat2, lon2):
 def get_dist(meteor):
     return meteor.get('distance', math.inf)    
 
-for meteor in meteor_data:
-    if 'reclat' not in meteor or 'reclong' not in meteor: 
-        continue
-    meteor["distance"] = calc_dist(float(meteor['reclat']), float(meteor['reclong']), my_location[0], my_location[1])
+if __name__ == '__main__':
+    meteor_resp = requests.get('https://data.nasa.gov/resource/gh4g-9sfh.json')
+    meteor_data = meteor_resp.json()
+    my_location = (1.289437,103.84998) # SG Lat and Long
 
-meteor_data.sort(key=get_dist)    
-print(meteor_data[0]) # Meteor landing that is closest to Singapore.
+    for meteor in meteor_data:
+        if 'reclat' not in meteor or 'reclong' not in meteor: 
+            continue
+        meteor["distance"] = calc_dist(float(meteor['reclat']), float(meteor['reclong']), my_location[0], my_location[1])
 
-print(len(meteor_data)) # Total number of data
+    meteor_data.sort(key=get_dist)    
+    print(meteor_data[0]) # Meteor landing that is closest to Singapore.
 
-print(len([ m for m in meteor_data if 'distance' not in m ])) # number of data without distance 
+    print(len(meteor_data)) # Total number of data
+
+    print(len([ m for m in meteor_data if 'distance' not in m ])) # number of data without distance 
